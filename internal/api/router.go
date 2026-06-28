@@ -3,15 +3,27 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"homeclimate-api/config"
+	"homeclimate-api/internal/cache"
+	"homeclimate-api/internal/weather"
 )
 
-func NewRouter(cfg *config.Config) http.Handler {
-	mux := http.NewServeMux()
+type Server struct {
+	weatherClient *weather.Client
+	cache         *cache.Cache
+}
 
+func NewRouter(cfg *config.Config) http.Handler {
+	s := &Server{
+		weatherClient: weather.NewClient(cfg.OpenMeteoURL),
+		cache:         cache.New(time.Duration(cfg.CacheTTLMinutes) * time.Minute),
+	}
+
+	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", handleHealth)
-	mux.HandleFunc("POST /v1/analyze", handleAnalyze)
+	mux.HandleFunc("POST /v1/analyze", s.handleAnalyze)
 
 	return mux
 }
@@ -21,13 +33,5 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"status":  "ok",
 		"version": "1.0.0",
-	})
-}
-
-func handleAnalyze(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	// placeholder — lo implementamos en el siguiente paso
-	json.NewEncoder(w).Encode(map[string]string{
-		"status": "not implemented yet",
 	})
 }
