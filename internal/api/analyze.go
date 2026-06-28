@@ -6,7 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+	"math"
 
+	"homeclimate-api/internal/geocoding"
 	"homeclimate-api/internal/solar"
 	"homeclimate-api/internal/weather"
 )
@@ -18,12 +20,34 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// resolver coordenadas — desde address o directas
+	if req.Address != nil {
+		geo := geocoding.NewClient()
+		result, err := geo.Geocode(
+			req.Address.Street,
+			req.Address.PostalCode,
+			req.Address.City,
+			req.Address.Country,
+		)
+		if err != nil {
+			writeError(w, http.StatusBadRequest, "address not found", err.Error())
+			return
+		}
+		req.Latitude = result.Latitude
+		req.Longitude = result.Longitude
+		slog.Info("geocoded address", "display_name", result.DisplayName)
+	}
+
 	if err := validateRequest(req); err != nil {
 		writeError(w, http.StatusBadRequest, err.Error(), "")
 		return
 	}
 
-	cacheKey := fmt.Sprintf("%.4f:%.4f", req.Latitude, req.Longitude)
+	// redondear coordenadas a 2 decimales antes de enviar a Open-Meteo (~1km)
+	lat := math.Round(req.Latitude*100) / 100
+	lon := math.Round(req.Longitude*100) / 100
+
+	cacheKey := fmt.Sprintf("%.2f:%.2f", lat, lon)
 	var weatherData *weather.Response
 
 	if cached, ok := s.cache.Get(cacheKey); ok {
@@ -32,7 +56,7 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	} else {
 		slog.Info("cache miss — fetching from Open-Meteo", "key", cacheKey)
 		var err error
-		weatherData, err = s.weatherClient.GetCurrent(req.Latitude, req.Longitude)
+		weatherData, err = s.weatherClient.GetCurrent(lat, lon)
 		if err != nil {
 			slog.Error("weather fetch failed", "error", err)
 			writeError(w, http.StatusServiceUnavailable, "weather data unavailable", err.Error())
@@ -44,9 +68,21 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 	sunPos, orientationReports := solar.Calculate(req.Latitude, req.Longitude, req.Orientations, now)
 
+	// ajustar por obstrucción de edificios colindantes
+	if req.ObstructionHeightM > 0 && req.ObstructionDistanceM > 0 {
+		floorH := solar.FloorHeightM(req.Floor)
+		obstructionAngle := solar.ObstructionAngle(req.ObstructionHeightM, req.ObstructionDistanceM, floorH)
+		orientationReports = solar.AdjustForObstruction(orientationReports, sunPos.Altitude, obstructionAngle)
+		slog.Info("obstruction applied",
+			"floor", req.Floor,
+			"floor_height_m", floorH,
+			"obstruction_angle_deg", obstructionAngle,
+		)
+	}
+
 	resp := AnalyzeResponse{
-		Latitude:  req.Latitude,
-		Longitude: req.Longitude,
+		Latitude:  lat,
+		Longitude: lon,
 		Timestamp: now.Format(time.RFC3339),
 		Weather: WeatherData{
 			Temperature:   weatherData.Current.Temperature,
@@ -58,7 +94,7 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 		Solar: SolarData{
 			SunAzimuth:   sunPos.Azimuth,
 			SunAltitude:  sunPos.Altitude,
-			IsDay:         sunPos.Altitude > 0,
+			IsDay:        sunPos.Altitude > 0,
 			Orientations: orientationReports,
 		},
 	}
@@ -68,6 +104,9 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateRequest(req AnalyzeRequest) error {
+	if req.Latitude == 0 && req.Longitude == 0 && req.Address == nil {
+		return fmt.Errorf("provide either coordinates or an address")
+	}
 	if req.Latitude < -90 || req.Latitude > 90 {
 		return fmt.Errorf("latitude must be between -90 and 90")
 	}

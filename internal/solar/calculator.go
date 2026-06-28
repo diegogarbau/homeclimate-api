@@ -22,7 +22,8 @@ type SunPosition struct {
 type OrientationReport struct {
 	Orientation  Orientation `json:"orientation"`
 	ReceivesSun  bool        `json:"receives_sun"`
-	SunIntensity string      `json:"sun_intensity"` // "none", "low", "medium", "high"
+	SunIntensity string      `json:"sun_intensity"`
+	ObstructedBy string      `json:"obstructed_by,omitempty"`
 }
 
 // Calculate devuelve el estado solar para cada orientación dada
