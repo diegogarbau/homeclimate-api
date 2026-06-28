@@ -8,6 +8,7 @@ import (
 	"time"
 	"math"
 
+	"homeclimate-api/internal/advisor"
 	"homeclimate-api/internal/geocoding"
 	"homeclimate-api/internal/solar"
 	"homeclimate-api/internal/weather"
@@ -80,7 +81,20 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 		)
 	}
 
-	resp := AnalyzeResponse{
+	rec, err := s.advisor.Recommend(advisor.Input{
+		Temperature:   weatherData.Current.Temperature,
+		Humidity:      weatherData.Current.Humidity,
+		Precipitation: weatherData.Current.Precipitation,
+		WindSpeed:     weatherData.Current.WindSpeed,
+		IsDay:         sunPos.Altitude > 0,
+		Orientations:  orientationReports,
+		Floor:         req.Floor,
+	})
+	if err != nil {
+		slog.Warn("advisor failed, continuing without recommendation", "error", err)
+	}
+
+resp := AnalyzeResponse{
 		Latitude:  lat,
 		Longitude: lon,
 		Timestamp: now.Format(time.RFC3339),
@@ -97,6 +111,7 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 			IsDay:        sunPos.Altitude > 0,
 			Orientations: orientationReports,
 		},
+		Recommendation: rec,
 	}
 
 	w.Header().Set("Content-Type", "application/json")

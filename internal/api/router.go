@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"homeclimate-api/config"
+	"homeclimate-api/internal/advisor"
 	"homeclimate-api/internal/cache"
 	"homeclimate-api/internal/weather"
 )
@@ -13,12 +14,14 @@ import (
 type Server struct {
 	weatherClient *weather.Client
 	cache         *cache.Cache
+	advisor       advisor.Advisor
 }
 
 func NewRouter(cfg *config.Config) http.Handler {
 	s := &Server{
 		weatherClient: weather.NewClient(cfg.OpenMeteoURL),
 		cache:         cache.New(time.Duration(cfg.CacheTTLMinutes) * time.Minute),
+		advisor:       advisor.NewMock(),
 	}
 
 	mux := http.NewServeMux()

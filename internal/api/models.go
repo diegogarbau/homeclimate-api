@@ -1,6 +1,9 @@
 package api
 
-import "homeclimate-api/internal/solar"
+import (
+	"homeclimate-api/internal/advisor"
+	"homeclimate-api/internal/solar"
+)
 
 type AnalyzeRequest struct {
 	// Opción A — coordenadas directas
@@ -42,11 +45,12 @@ type SolarData struct {
 }
 
 type AnalyzeResponse struct {
-	Latitude  float64     `json:"latitude"`
-	Longitude float64     `json:"longitude"`
-	Timestamp string      `json:"timestamp"`
-	Weather   WeatherData `json:"weather"`
-	Solar     SolarData   `json:"solar"`
+	Latitude       float64                    `json:"latitude"`
+	Longitude      float64                    `json:"longitude"`
+	Timestamp      string                     `json:"timestamp"`
+	Weather        WeatherData                `json:"weather"`
+	Solar          SolarData                  `json:"solar"`
+	Recommendation *advisor.Recommendation    `json:"recommendation"`
 }
 
 type ErrorResponse struct {
