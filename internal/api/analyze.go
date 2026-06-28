@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"math"
 	"net/http"
 	"time"
-	"math"
 
 	"homeclimate-api/internal/advisor"
 	"homeclimate-api/internal/geocoding"
@@ -14,6 +14,17 @@ import (
 	"homeclimate-api/internal/weather"
 )
 
+// handleAnalyze godoc
+// @Summary      Analyze climate conditions for a location
+// @Description  Given coordinates or an address and home orientations, returns weather data, solar analysis per orientation, and comfort recommendations
+// @Tags         analysis
+// @Accept       json
+// @Produce      json
+// @Param        request  body      AnalyzeRequest   true  "Location and home configuration"
+// @Success      200      {object}  AnalyzeResponse
+// @Failure      400      {object}  ErrorResponse
+// @Failure      503      {object}  ErrorResponse
+// @Router       /v1/analyze [post]
 func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	var req AnalyzeRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -94,7 +105,7 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 		slog.Warn("advisor failed, continuing without recommendation", "error", err)
 	}
 
-resp := AnalyzeResponse{
+	resp := AnalyzeResponse{
 		Latitude:  lat,
 		Longitude: lon,
 		Timestamp: now.Format(time.RFC3339),

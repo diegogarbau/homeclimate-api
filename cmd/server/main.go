@@ -1,3 +1,18 @@
+// @title           HomeClimate API
+// @version         1.0
+// @description     Given a location and home orientations, analyzes weather and solar conditions to recommend comfort actions (open/close windows, blinds, awnings).
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   Diego García Bautista
+// @contact.url    https://linkedin.com/in/diegogarbau
+// @contact.email  diego.garbau@gmail.com
+
+// @license.name  MIT
+// @license.url   https://opensource.org/licenses/MIT
+
+// @host      localhost:8080
+// @BasePath  /
+
 package main
 
 import (
@@ -15,7 +30,6 @@ func main() {
 	slog.SetDefault(logger)
 
 	cfg := config.Load()
-
 	router := api.NewRouter(cfg)
 
 	slog.Info("server starting", "port", cfg.Port)
