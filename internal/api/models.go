@@ -17,13 +17,13 @@ type AnalyzeRequest struct {
 	Orientations []solar.Orientation `json:"orientations"`
 
 	// Altura de la vivienda
-	Floor             int     `json:"floor"`                        // 0=bajo, 1=primero...
-	ObstructionHeightM float64 `json:"obstruction_height_m,omitempty"` // altura edificios colindantes
+	Floor                int     `json:"floor"`                            // 0=bajo, 1=primero...
+	ObstructionHeightM   float64 `json:"obstruction_height_m,omitempty"`   // altura edificios colindantes
 	ObstructionDistanceM float64 `json:"obstruction_distance_m,omitempty"` // distancia a esos edificios
 }
 
 type AddressInput struct {
-	Street     string `json:"street"`      // calle y número
+	Street     string `json:"street"` // calle y número
 	PostalCode string `json:"postal_code"`
 	City       string `json:"city"`
 	Country    string `json:"country,omitempty"` // default "Spain"
@@ -38,19 +38,19 @@ type WeatherData struct {
 }
 
 type SolarData struct {
-	SunAzimuth   float64                    `json:"sun_azimuth_degrees"`
-	SunAltitude  float64                    `json:"sun_altitude_degrees"`
-	IsDay        bool                       `json:"is_day"`
-	Orientations []solar.OrientationReport  `json:"orientations"`
+	SunAzimuth   float64                   `json:"sun_azimuth_degrees"`
+	SunAltitude  float64                   `json:"sun_altitude_degrees"`
+	IsDay        bool                      `json:"is_day"`
+	Orientations []solar.OrientationReport `json:"orientations"`
 }
 
 type AnalyzeResponse struct {
-	Latitude       float64                    `json:"latitude"`
-	Longitude      float64                    `json:"longitude"`
-	Timestamp      string                     `json:"timestamp"`
-	Weather        WeatherData                `json:"weather"`
-	Solar          SolarData                  `json:"solar"`
-	Recommendation *advisor.Recommendation    `json:"recommendation"`
+	Latitude       float64                 `json:"latitude"`
+	Longitude      float64                 `json:"longitude"`
+	Timestamp      string                  `json:"timestamp"`
+	Weather        WeatherData             `json:"weather"`
+	Solar          SolarData               `json:"solar"`
+	Recommendation *advisor.Recommendation `json:"recommendation"`
 }
 
 type ErrorResponse struct {

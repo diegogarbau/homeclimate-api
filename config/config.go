@@ -5,9 +5,9 @@ import (
 )
 
 type Config struct {
-	Port           string
-	OpenMeteoURL   string
-	ClaudeAPIKey   string
+	Port            string
+	OpenMeteoURL    string
+	ClaudeAPIKey    string
 	CacheTTLMinutes int
 }
 

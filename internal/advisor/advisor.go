@@ -11,19 +11,19 @@ type Advisor interface {
 }
 
 type Input struct {
-	Temperature    float64
-	Humidity       int
-	Precipitation  float64
-	WindSpeed      float64
-	IsDay          bool
-	Orientations   []solar.OrientationReport
-	Floor          int
+	Temperature   float64
+	Humidity      int
+	Precipitation float64
+	WindSpeed     float64
+	IsDay         bool
+	Orientations  []solar.OrientationReport
+	Floor         int
 }
 
 type Action struct {
-	Action      string `json:"action"`
-	Reason      string `json:"reason"`
-	Priority    string `json:"priority"` // "high", "medium", "low"
+	Action   string `json:"action"`
+	Reason   string `json:"reason"`
+	Priority string `json:"priority"` // "high", "medium", "low"
 }
 
 type Recommendation struct {
