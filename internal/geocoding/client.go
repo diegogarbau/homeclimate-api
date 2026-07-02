@@ -23,8 +23,8 @@ func NewClient() *Client {
 }
 
 type Result struct {
-	Latitude  float64
-	Longitude float64
+	Latitude    float64
+	Longitude   float64
 	DisplayName string
 }
 

@@ -40,10 +40,10 @@ type CurrentWeather struct {
 }
 
 type Response struct {
-	Latitude  float64 `json:"latitude"`
-	Longitude float64 `json:"longitude"`
-	Elevation float64 `json:"elevation"`
-	Timezone  string  `json:"timezone"`
+	Latitude  float64        `json:"latitude"`
+	Longitude float64        `json:"longitude"`
+	Elevation float64        `json:"elevation"`
+	Timezone  string         `json:"timezone"`
 	Current   CurrentWeather `json:"current"`
 }
 

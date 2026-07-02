@@ -2,11 +2,11 @@ package weather_test
 
 import (
 	"encoding/json"
+	"homeclimate-api/internal/weather"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
-	"homeclimate-api/internal/weather"
 )
 
 func TestGetCurrent_Success(t *testing.T) {
