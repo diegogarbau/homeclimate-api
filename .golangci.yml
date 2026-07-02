@@ -1,0 +1,20 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+# In v2 the default linters (errcheck, govet, ineffassign, staticcheck,
+# unused) are enabled automatically. We rely on those defaults and only
+# tweak exclusions. misspell is intentionally omitted because the codebase
+# has Spanish comments that an English dictionary would flag.
+linters:
+  exclusions:
+    rules:
+      # Test files may ignore errors for brevity in assertions.
+      - path: _test\.go
+        linters:
+          - errcheck
+
+formatters:
+  enable:
+    - gofmt

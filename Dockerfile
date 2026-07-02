@@ -4,7 +4,8 @@ FROM golang:1.22-alpine AS builder
 WORKDIR /app
 
 # copiar dependencias primero (aprovecha cache de capas)
-COPY go.mod go.sum ./
+# go.su[m] es un glob opcional: el módulo es solo-stdlib y aún no tiene go.sum
+COPY go.mod go.su[m] ./
 RUN go mod download
 
 # copiar código fuente
