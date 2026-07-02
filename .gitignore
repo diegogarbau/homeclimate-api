@@ -1,0 +1,25 @@
+# Environment / secrets
+.env
+.env.local
+*.env
+!.env.example
+
+# Binaries
+/bin/
+/dist/
+homeclimate-api
+*.exe
+*.out
+
+# Go
+*.test
+*.prof
+/vendor/
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log
