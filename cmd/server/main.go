@@ -20,6 +20,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"homeclimate-api/config"
 	"homeclimate-api/internal/api"
@@ -32,8 +33,18 @@ func main() {
 	cfg := config.Load()
 	router := api.NewRouter(cfg)
 
+	// Timeouts configured to harden against slow-client attacks (e.g. Slowloris).
+	srv := &http.Server{
+		Addr:              fmt.Sprintf(":%s", cfg.Port),
+		Handler:           router,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
+	}
+
 	slog.Info("server starting", "port", cfg.Port)
-	if err := http.ListenAndServe(fmt.Sprintf(":%s", cfg.Port), router); err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		slog.Error("server failed", "error", err)
 		os.Exit(1)
 	}

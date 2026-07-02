@@ -42,7 +42,7 @@ func NewRouter(cfg *config.Config) http.Handler {
 // @Router       /health [get]
 func handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+	_ = json.NewEncoder(w).Encode(map[string]string{
 		"status":  "ok",
 		"version": "1.0.0",
 	})
@@ -50,7 +50,7 @@ func handleHealth(w http.ResponseWriter, r *http.Request) {
 
 func handleDocs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(`<!DOCTYPE html>
+	_, _ = w.Write([]byte(`<!DOCTYPE html>
 <html>
 <head>
   <title>HomeClimate API Docs</title>
@@ -75,7 +75,7 @@ func handleDocs(w http.ResponseWriter, r *http.Request) {
 
 func handleOpenAPISpec(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(`{
+	_, _ = w.Write([]byte(`{
   "openapi": "3.0.0",
   "info": {
     "title": "HomeClimate API",
