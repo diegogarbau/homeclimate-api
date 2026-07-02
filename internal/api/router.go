@@ -84,7 +84,7 @@ func handleOpenAPISpec(w http.ResponseWriter, r *http.Request) {
     "contact": {
       "name": "Diego García Bautista",
       "url": "https://linkedin.com/in/diegogarbau",
-      "email": "diego.garbau@gmail.com"
+      "email": "contact@diegogarbau.dev"
     },
     "license": { "name": "MIT" }
   },
