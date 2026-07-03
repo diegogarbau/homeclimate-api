@@ -18,10 +18,19 @@ type Server struct {
 }
 
 func NewRouter(cfg *config.Config) http.Handler {
+	// Use the Claude-powered advisor when an API key is configured; otherwise
+	// fall back to the rule-based mock so the API works with zero config.
+	var adv advisor.Advisor
+	if cfg.ClaudeAPIKey != "" {
+		adv = advisor.NewClaudeAdvisor(cfg.ClaudeAPIKey)
+	} else {
+		adv = advisor.NewMock()
+	}
+
 	s := &Server{
 		weatherClient: weather.NewClient(cfg.OpenMeteoURL),
 		cache:         cache.New(time.Duration(cfg.CacheTTLMinutes) * time.Minute),
-		advisor:       advisor.NewMock(),
+		advisor:       adv,
 	}
 
 	mux := http.NewServeMux()
