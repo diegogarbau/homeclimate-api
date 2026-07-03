@@ -3,10 +3,10 @@ version: "2"
 run:
   timeout: 5m
 
+# Requires golangci-lint v2 (installed via golangci-lint-action@v7).
 # In v2 the default linters (errcheck, govet, ineffassign, staticcheck,
-# unused) are enabled automatically. We rely on those defaults and only
-# tweak exclusions. misspell is intentionally omitted because the codebase
-# has Spanish comments that an English dictionary would flag.
+# unused) are enabled automatically. misspell is intentionally omitted
+# because the codebase has Spanish comments an English dictionary would flag.
 linters:
   exclusions:
     rules:
