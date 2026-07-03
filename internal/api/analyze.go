@@ -126,7 +126,7 @@ func (s *Server) handleAnalyze(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(resp)
 }
 
 func validateRequest(req AnalyzeRequest) error {
@@ -155,5 +155,5 @@ func validateRequest(req AnalyzeRequest) error {
 func writeError(w http.ResponseWriter, status int, msg, details string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(ErrorResponse{Error: msg, Details: details})
+	_ = json.NewEncoder(w).Encode(ErrorResponse{Error: msg, Details: details})
 }
