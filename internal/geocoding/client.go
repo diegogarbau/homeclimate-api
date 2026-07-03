@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -65,7 +66,7 @@ func (c *Client) Geocode(street, postalCode, city, country string) (*Result, err
 	if err != nil {
 		return nil, fmt.Errorf("geocoding request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var results []nominatimResponse
 	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
@@ -76,9 +77,14 @@ func (c *Client) Geocode(street, postalCode, city, country string) (*Result, err
 		return nil, fmt.Errorf("address not found: %s", query)
 	}
 
-	var lat, lon float64
-	fmt.Sscanf(results[0].Lat, "%f", &lat)
-	fmt.Sscanf(results[0].Lon, "%f", &lon)
+	lat, err := strconv.ParseFloat(results[0].Lat, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid latitude %q: %w", results[0].Lat, err)
+	}
+	lon, err := strconv.ParseFloat(results[0].Lon, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid longitude %q: %w", results[0].Lon, err)
+	}
 
 	return &Result{
 		Latitude:    lat,
@@ -92,7 +98,6 @@ func (c *Client) Geocode(street, postalCode, city, country string) (*Result, err
 // "Gran Via, 10" -> "Gran Via"
 func sanitizeStreet(street string) string {
 	// eliminamos todo lo que sea número al final de la cadena
-	result := []rune{}
 	runes := []rune(street)
 	i := len(runes) - 1
 
@@ -109,7 +114,7 @@ func sanitizeStreet(street string) string {
 		i--
 	}
 
-	result = runes[:i+1]
+	result := runes[:i+1]
 	if len(result) == 0 {
 		return street // si queda vacío devolvemos el original
 	}
