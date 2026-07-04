@@ -107,3 +107,10 @@ func TestSanitizeStreet(t *testing.T) {
 		}
 	}
 }
+
+func TestNewClient(t *testing.T) {
+	c := NewClient()
+	if c == nil {
+		t.Fatal("expected NewClient to return a non-nil client")
+	}
+}
