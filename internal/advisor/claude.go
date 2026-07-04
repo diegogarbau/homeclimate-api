@@ -45,6 +45,18 @@ func NewClaudeAdvisor(apiKey string) Advisor {
 	}
 }
 
+// NewClaudeAdvisorWithBaseURL is like NewClaudeAdvisor but allows overriding
+// the Anthropic base URL — used in tests to point at a mock server.
+func NewClaudeAdvisorWithBaseURL(apiKey, baseURL string) Advisor {
+	return &ClaudeAdvisor{
+		apiKey:     apiKey,
+		model:      claudeModel,
+		baseURL:    baseURL,
+		httpClient: &http.Client{Timeout: 20 * time.Second},
+		fallback:   NewMock(),
+	}
+}
+
 // ---- Anthropic Messages API wire types (subset we use) ----
 
 type anthropicMessage struct {

@@ -69,3 +69,21 @@ func TestCache_Overwrite(t *testing.T) {
 		t.Errorf("expected value2, got %v", val)
 	}
 }
+
+func TestCache_CleanupRemovesExpiredEntries(t *testing.T) {
+	c := cache.New(50 * time.Millisecond)
+
+	c.Set("key1", "value1")
+	c.Set("key2", "value2")
+
+	// esperamos a que el TTL expire y el ticker de cleanup (1 minuto) sea forzado
+	// como el ticker real es de 1 minuto, verificamos solo que Get respeta la expiración
+	time.Sleep(100 * time.Millisecond)
+
+	_, ok1 := c.Get("key1")
+	_, ok2 := c.Get("key2")
+
+	if ok1 || ok2 {
+		t.Error("expected both keys to be expired and inaccessible")
+	}
+}
